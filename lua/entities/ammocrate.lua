@@ -44,6 +44,7 @@ function ENT:Initialize()
 end
 
 function ControllFall(entity)
+    if not IsValid(entity) then return end
     landed = false
     entity:SetCollisionGroup(COLLISION_GROUP_WORLD)
     timer.Create("controlledFalling", FrameTime(), 0, function()

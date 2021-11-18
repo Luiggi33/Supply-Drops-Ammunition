@@ -92,14 +92,49 @@ function DropOfFlight(ent, startPos, dropPos)
                 table.remove(ent.DropTable, rand)
                 local drop = ents.Create(randItem)
                 drop:SetPos(ent:GetPos())
+                drop:SetMoveType(MOVETYPE_FLY)
+                drop:SetSolid(SOLID_VPHYSICS)
+                drop:SetCollisionGroup(COLLISION_GROUP_PLAYER)
                 drop:Spawn()
                 drop:Activate()
+                controlledFall(drop, dropPos)
                 delay = CurTime() + ent.Delay
             end
         end
 
         ::after::
         ent:SetVelocity(Vector(-1000, 0, 0))
+    end)
+end
+
+function controlledFall(entity, toDropPos)
+    if not entity:IsValid() then return end
+    local timerName = "controlledFall" .. entity:GetCreationID()
+    timer.Create(timerName, FrameTime(), 0, function()
+        if not IsValid(entity) then
+            timer.Remove(timerName)
+        end
+        local mins = entity:OBBMins() + Vector(0, 0, -50)
+        local maxs = entity:OBBMaxs() + Vector(0, 0, -50)
+        local startpos = entity:GetPos()
+
+        local tr = {
+            start = startpos,
+            endpos = startpos,
+            mins = mins,
+            maxs = maxs
+        }
+
+        local hullTrace = util.TraceHull(tr)
+
+        if (hullTrace.HitWorld) then
+            timer.Remove(timerName)
+            --entity:SetPos(entity:GetPos() + Vector(0, 0, -40))
+            entity:SetMoveType(MOVETYPE_VPHYSICS)
+            entity:SetSolid(SOLID_VPHYSICS)
+            entity:SetCollisionGroup(COLLISION_GROUP_PLAYER)
+            entity:DropToFloor()
+        end
     end)
 end
 
