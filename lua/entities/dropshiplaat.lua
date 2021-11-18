@@ -14,15 +14,11 @@ ENT.soundLoop = nil
 ENT.AutomaticFrameAdvance = true
 
 -- List of Entities that will be dropped
-ENT.DropTable = {"kleinebombe","rw_sw_dispencer","rw_sw_dispencer","rw_sw_dispencer"}
--- Radius where stuff gets checked
-ENT.Radius = 1000
+ENT.DropTable = {"ammocrate", "ammocrate"}
 -- The Height of the flight
 ENT.Height = 3000
 -- Delay Between Items in Drops
 ENT.Delay = 0.1
--- Offset of Marked Position and Beginning of the Drop
-ENT.Offset = -700
 -- Speed of the Ship
 ENT.Speed = -1000
 -- Model of the Ship
@@ -73,33 +69,37 @@ function ENT:Initialize()
 end
 
 function DropOfFlight(ent, startPos, dropPos)
-    local inFlight = true
     local delay = 0
 
+    local radius = 200
+    local height = ent.Height
+
+    if #ent.DropTable == 1 then
+        radius = 20
+    end
+
     timer.Create("FlyID" .. ent:GetCreationID(), FrameTime(), 0, function()
-        if inFlight == true then
-            if table.HasValue(ents.FindInSphere(dropPos + Vector(ent.Offset, 0, ent.Height), ent.Radius), ent) then
-                if table.IsEmpty(ent.DropTable) then
-                    timedRemoval(ent, 3)
-                else
-                    if CurTime() < delay then
-                        goto after
-                    end
-
-                    local rand = math.random(1, #ent.DropTable)
-                    local randItem = ent.DropTable[rand]
-                    table.remove(ent.DropTable, rand)
-                    local drop = ents.Create(randItem)
-                    drop:SetPos(ent:GetPos() + Vector(50, 0, -200))
-                    drop:Spawn()
-                    drop:Activate()
-                    delay = CurTime() + ent.Delay
+        if table.HasValue(ents.FindInSphere(dropPos + Vector(-200, 0, height), radius), ent) then
+            if table.IsEmpty(ent.DropTable) then
+                timedRemoval(ent, 3)
+            else
+                if CurTime() < delay then
+                    goto after
                 end
-            end
 
-            ::after::
-            ent:SetVelocity(Vector(-1000, 0, 0))
+                local rand = math.random(1, #ent.DropTable)
+                local randItem = ent.DropTable[rand]
+                table.remove(ent.DropTable, rand)
+                local drop = ents.Create(randItem)
+                drop:SetPos(ent:GetPos())
+                drop:Spawn()
+                drop:Activate()
+                delay = CurTime() + ent.Delay
+            end
         end
+
+        ::after::
+        ent:SetVelocity(Vector(-1000, 0, 0))
     end)
 end
 
