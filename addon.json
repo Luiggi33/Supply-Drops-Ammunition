@@ -1,0 +1,14 @@
+{
+	"title" :	"Supply Drops: Ammunition",
+	"type"  :	"weapon",
+	"tags"  :	["roleplay","realism"],
+	"ignore":
+	[
+		"*.cmd",
+		"*.ini",
+		"*.lnk",
+		"*.url",
+		"Resupply.jpg",
+		"Resupply.png"
+	]
+}
