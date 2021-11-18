@@ -9,6 +9,8 @@ ENT.Category		= "AmmoDrops"
 ENT.Spawnable = false
 ENT.AdminOnly = false
 
+ENT.soundLoop = nil
+
 ENT.AutomaticFrameAdvance = true
 
 -- List of Entities that will be dropped
@@ -33,12 +35,11 @@ if CLIENT then
         self:DrawModel()
     end
     function ENT:Initialize()
-        self.LoopSound = CreateSound(self, self.Sound)
-        self.LoopSound:Play()
+        self.soundLoop = Sound(self.Sound)
+        self:EmitSound(self.soundLoop, 140, 100, 1, CHAN_STATIC)
     end
     function ENT:OnRemove()
-        self.LoopSound:FadeOut(1.5)
-        timer.Simple(1.5, function() self.LoopSound:Stop() end)
+        self:StopSound(self.soundLoop)
     end
 end
 
@@ -79,7 +80,6 @@ function DropOfFlight(ent, startPos, dropPos)
         if inFlight == true then
             if table.HasValue(ents.FindInSphere(dropPos + Vector(ent.Offset, 0, ent.Height), ent.Radius), ent) then
                 if table.IsEmpty(ent.DropTable) then
-                    print(ent)
                     timedRemoval(ent, 3)
                 else
                     if CurTime() < delay then
